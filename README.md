@@ -1,12 +1,14 @@
 # cikm17-NNCF(Pytorch)
 
 Implementation of A Neural Collaborative Filtering Model with Interaction-based Neighborhood (NNCF) 
+
 Ting Bai et al. "A Neural Collaborative Filtering Model with Interaction-based Neighborhood." Proceedings of the 2017 ACM on Conference on Information and Knowledge Management. ACM, 2017.
+
 
 ## Run the model: python main.py
 
 
-Parameters:
+Parameters(see main.py: the optimazation parameters):
 
 neigh_sample_num: the maximum neighbors in our algorithm
 
@@ -34,7 +36,7 @@ patience: early stopping
 
 utils.py: Define data loading function, loss function, evaluation function
 
-preprocess.py: Preprocess the original data set to generate  train.csv、dev.csv、test.csv
+preprocess.py: Preprocess the original data set to generate  train.csv銆乨ev.csv銆乼est.csv
 
 model.py: Define the model NNCF
 
@@ -54,6 +56,15 @@ Pytorch version: 1.5.1
 community: 0.14
 
 networkx: 2.4
+
+
+## Results on Movielens-100k
+
+| Dataset | HR@5   | NDCG@5 | HR@10  | NDCG@10 |
+| ------- | ------ | ------ | ------ | ------- |
+| ml-100k | 0.4355 | 0.4323 | 0.4447 | 0.4352  |
+
+
 
 
 ## Cite
