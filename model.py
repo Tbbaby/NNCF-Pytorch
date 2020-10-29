@@ -67,6 +67,6 @@ class NNCF(nn.Module):
         for layer in self.hidden_layers:
             last = layer(last).relu()
             last = self.dropout_layer(last)
-
         out = self.out_layer(last).squeeze()
+
         return out

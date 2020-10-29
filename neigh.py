@@ -20,8 +20,6 @@ def prepare_vector_element(partition,relation,community_dict,num_user,num_item):
 
     item2user_neighbor_lst = [[] for _ in range(num_item)]     ###item的历史user
     user2item_neighbor_lst = [[] for _ in range(num_user)]     ###user的历史item
-    flag_item = np.zeros(num_item)
-    flag_user = np.zeros(num_user)
 
     for r in range(len(relation)):
         user, item = relation[r][0],relation[r][1]
@@ -43,12 +41,8 @@ def prepare_vector_element(partition,relation,community_dict,num_user,num_item):
             name,index = user2item_neighbor[i].split('_', 1)
             user2item_neighbor[i]=int(index)
 
-        if flag_item[item]==0:
-            item2user_neighbor_lst[item] = item2user_neighbor
-            flag_item[item]=1
-        if flag_user[user]==0:
-            user2item_neighbor_lst[user] = user2item_neighbor
-            flag_user[user]=1
+        item2user_neighbor_lst[item] = item2user_neighbor
+        user2item_neighbor_lst[user] = user2item_neighbor
 
     return user2item_neighbor_lst,item2user_neighbor_lst
 
@@ -60,7 +54,7 @@ def Louvain(pairs, neigh_sample_num, num_users, num_items, tuner_params):
     G = nx.Graph()
     G.add_edges_from(tmp_relation)
     resolution = tuner_params['resolution']
-    partition = community.best_partition(G, resolution=resolution)
+    partition = community.best_partition(G, resolution=resolution)    # node : community
 
     community_dict = {}
     community_dict.setdefault(0, [])
@@ -71,19 +65,9 @@ def Louvain(pairs, neigh_sample_num, num_users, num_items, tuner_params):
 
     tmp_user2item, tmp_item2user = prepare_vector_element(partition, tmp_relation, community_dict,
                                                           num_users, num_items)
-    item_len, user_len = 111111, 111111
-    item_max_len = 0
-    for i in range(len(tmp_item2user)):
-        if len(tmp_item2user[i]) < item_len:
-            item_len = len(tmp_item2user[i])
-        if len(tmp_item2user[i]) > item_max_len:
-            item_max_len = len(tmp_item2user[i])
-    for i in range(len(tmp_user2item)):
-        if len(tmp_user2item[i]) < user_len:
-            user_len = len(tmp_user2item[i])
-
     u_neigh = Max_ner(tmp_user2item, neigh_sample_num)
     i_neigh = Max_ner(tmp_item2user, neigh_sample_num)
+
     return u_neigh, i_neigh
 
 def RandomNeigh(pairs, neigh_sample_num, num_users, num_items, tuner_params):
@@ -92,7 +76,6 @@ def RandomNeigh(pairs, neigh_sample_num, num_users, num_items, tuner_params):
     u_neigh, i_neigh = [], []
     for u in range(num_users):
         neigh_list = ui_inters[u].nonzero()[0]
-        # 如果这个点没有邻居，就把邻居全置为0（之后需要更合理的修改）
         if len(neigh_list) == 0:
             u_neigh.append(neigh_sample_num * [0])
         else:

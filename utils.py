@@ -4,6 +4,7 @@ import torch
 import torch.nn.functional as F
 from torch.nn.utils.rnn import pad_sequence
 from neigh import Louvain, RandomNeigh
+from sklearn.metrics.pairwise import cosine_similarity
 #from models.evaluation_metrics import sample_metric as smetric
 
 
@@ -11,9 +12,9 @@ class Dataset():
     def __init__(self, dataset_name, tuner_params):
         self.tuner_params = tuner_params
         np.random.seed(2020)
-        neigh_sample_num = tuner_params['neigh_sample_num']
+        neigh_sample_num = 20
         self.neigh_sample_num = neigh_sample_num
-        max_his_len = tuner_params['max_his_len']
+        max_his_len = 20
         self.max_his_len = max_his_len
         phases = ['train', 'dev', 'test']
         data = {}
@@ -24,6 +25,8 @@ class Dataset():
         self.data = data
         self.num_users = max(data['train'][:, 0].max(), data['dev']['user_id'].max(), data['test']['user_id'].max()) + 1
         self.num_items = max(data['train'][:, 1].max(), data['dev']['item_id'].max(), data['test']['item_id'].max()) + 1
+        #print('num_users', self.num_users)   #944
+        #print('num_items', self.num_items)   #1683
         self.feed_dict = {key: [] for key in phases}
         self.users_adj_list = {key: {} for key in phases}
         self.ui_inters = np.zeros((self.num_users, self.num_items), dtype=np.int8)
@@ -52,6 +55,7 @@ class Dataset():
                 self.users_adj_list[key][u_ids[idx]].append(i_ids[idx])
                 self.feed_dict[key].append(row)
         neigh_method = Louvain if 'resolution' in tuner_params else RandomNeigh
+        #neigh_method = RandomNeigh
         u_neigh, i_neigh = neigh_method(data['train'], self.neigh_sample_num, self.num_users, self.num_items,
                                         tuner_params)
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
